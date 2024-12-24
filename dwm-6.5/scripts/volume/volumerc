@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Get the default sink (audio output device)
+DEFAULT_SINK=$(pactl info | grep "Default Sink" | awk '{print $3}')
+
+# Increase volume by 5%
+volume_up() {
+    pactl set-sink-volume "$DEFAULT_SINK" +5%
+}
+
+# Decrease volume by 5%
+volume_down() {
+    pactl set-sink-volume "$DEFAULT_SINK" -5%
+}
+
+# Toggle mute/unmute
+toggle_mute() {
+    pactl set-sink-mute "$DEFAULT_SINK" toggle
+}
+
+# Script usage options
+case "$1" in
+    up)
+        volume_up
+        ;;
+    down)
+        volume_down
+        ;;
+    mute)
+        toggle_mute
+        ;;
+    *)
+        echo "Usage: $0 {up|down|mute}"
+        ;;
+esac
+

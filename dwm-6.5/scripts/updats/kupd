@@ -1,0 +1,73 @@
+#!/bin/bash
+
+updates_needed=false
+total_size=0
+
+echo "Checking for updates..."
+
+# Check for pacman updates and size
+pacman_updates=$(checkupdates)
+if [[ -n "$pacman_updates" ]]; then
+    echo "Official Arch Linux updates are available."
+    updates_needed=true
+
+    # Get the size of pacman updates
+    pacman_size=$(checkupdates | awk '{print $1}' | xargs pacman -Si | grep "Download Size" | awk '{total+=$4} END {print total}')
+    total_size=$(echo "$total_size + $pacman_size" | bc)
+
+    echo "Total size of official updates: $pacman_size MB"
+else
+    echo "No official Arch Linux updates available."
+fi
+
+# Check for AUR updates using yay and size
+aur_updates=$(yay -Qua)
+if [[ -n "$aur_updates" ]]; then
+    echo "AUR updates are available."
+    updates_needed=true
+
+    # Get the size of AUR updates
+    aur_size=$(yay -Qua --size | grep "Download Size" | awk '{total+=$3} END {print total}')
+    total_size=$(echo "$total_size + $aur_size" | bc)
+
+    echo "Total size of AUR updates: $aur_size MB"
+else
+    echo "No AUR updates available."
+fi
+
+# Check for Snap updates (size calculation for Snap isn't typically straightforward)
+snap_updates=$(sudo snap refresh --list)
+if [[ -n "$snap_updates" ]]; then
+    echo "Snap updates are available."
+    updates_needed=true
+
+    # Snap does not provide an easy way to calculate update size, just mention updates are available
+    echo "Snap updates are available (size cannot be determined)."
+else
+    echo "No Snap updates available."
+fi
+
+# Check if any updates are needed
+if [ "$updates_needed" = true ]; then
+    echo "Total size of all updates: $total_size MB"
+    echo "Do you want to proceed with updating? (y/n)"
+    read -r answer
+    if [[ "$answer" =~ ^[Yy]$ ]]; then
+        # Perform the updates
+        echo "Updating official Arch Linux packages..."
+        sudo pacman -Syu --noconfirm
+
+        echo "Updating AUR packages..."
+        yay -Syu --noconfirm
+
+        echo "Updating Snap packages..."
+        sudo snap refresh
+
+        echo "System update complete!"
+    else
+        echo "Update cancelled."
+    fi
+else
+    echo "Your system is up to date. No updates are needed."
+fi
+

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Screenshot directory
+SCREENSHOT_DIR="$HOME/Pictures/Screenshots"
+
+# Create the directory if it doesn't exist
+mkdir -p "$SCREENSHOT_DIR"
+
+# Generate a filename with date and time
+FILENAME="$SCREENSHOT_DIR/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png"
+
+# Take a screenshot with area selection and save it to the file
+scrot -s "$FILENAME"
+
+# Notify the user (optional)
+notify-send "Screenshot taken" "Saved to $FILENAME"
+

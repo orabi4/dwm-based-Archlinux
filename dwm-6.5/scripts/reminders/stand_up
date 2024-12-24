@@ -1,0 +1,4 @@
+#!/bin/bash
+notify-send "StandUp يا عررررررص" "لديك اجتماع stand-up مع صديقك الساعة 7 مساءً!"
+
+
